@@ -22,7 +22,7 @@ export default function EditSongModal({
 
     startTransition(async () => {
       const response = await fetch(
-        `http://localhost:8001/api/songs/${song.id}`,
+        `https://api.alexmelia.dev/api/songs/${song.id}`,
         {
           method: "PUT",
           headers: {

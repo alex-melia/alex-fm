@@ -7,7 +7,7 @@ import CustomAudioPlayer from "@/components/ui/audio-player"
 import { ArrowRightCircle } from "lucide-react"
 import { getRelativeTime } from "@/lib/utilts"
 
-const socket = io(`http://5.75.188.62:8001`, {
+const socket = io(`https://api.alexmelia.dev`, {
   transports: ["websocket"],
 })
 
@@ -22,7 +22,7 @@ export default function Home() {
       setCurrentSong(data)
 
       const response = await fetch(
-        `http://5.75.188.62:8001/api/recently-played`
+        `https://api.alexmelia.dev/api/recently-played`
       )
 
       if (!response.ok) {

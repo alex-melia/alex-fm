@@ -4,7 +4,7 @@ import { RecentlyPlayed as RecentlyPlayedType } from "@/types/types"
 import React from "react"
 
 export default async function RecentlyPlayed() {
-  const response = await fetch("http://5.75.188.62:8001/api/recently-played")
+  const response = await fetch("https://api.alexmelia.dev/api/recently-played")
 
   if (!response.ok) {
     console.log("Error:", response.statusText)

@@ -24,7 +24,7 @@ export default function AddSongModal({
     e.preventDefault()
 
     startTransition(async () => {
-      const response = await fetch(`http://localhost:8001/api/songs`, {
+      const response = await fetch(`https://api.alexmelia.dev/api/songs`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
