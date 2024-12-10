@@ -44,7 +44,7 @@ export default function CustomAudioPlayer({ song }: { song: Song | null }) {
   return (
     <div className="flex flex-col items-center justify-center">
       <audio ref={audioRef}>
-        <source src="http://5.75.188.62:8000/stream" />
+        <source src="https://api.alexmelia.dev/stream" />
         Your browser does not support the audio element.
       </audio>
 
