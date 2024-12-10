@@ -28,7 +28,7 @@ jobs:
 
       - name: Copy files to server
         run: |
-          sshpass -p "${{ secrets.SERVER_PASSWORD }}" rsync -avz --delete ./server/ root@${{ secrets.SERVER_IP }}:/root/radio/server
+          sshpass -p "${{ secrets.SERVER_PASSWORD }}" rsync -avz --delete -e "ssh -o StrictHostKeyChecking=no" ./server/ root@${{ secrets.SERVER_IP }}:/root/radio/server
 
       - name: Deploy with PM2
         run: |
