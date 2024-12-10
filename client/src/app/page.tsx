@@ -6,8 +6,9 @@ import { RecentlyPlayed, Song } from "@/types/types"
 import CustomAudioPlayer from "@/components/ui/audio-player"
 import { ArrowRightCircle } from "lucide-react"
 import { getRelativeTime } from "@/lib/utilts"
+import { SERVER_URL } from "@/lib/utilts"
 
-const socket = io("http://localhost:8001", {
+const socket = io(`http://5.75.188.62:8001`, {
   transports: ["websocket"],
 })
 
@@ -19,7 +20,9 @@ export default function Home() {
     const metadataListener = async (data: Song) => {
       setCurrentSong(data)
 
-      const response = await fetch("http://localhost:8001/api/recently-played")
+      const response = await fetch(
+        `http://5.75.188.62:8001/api/recently-played`
+      )
 
       if (!response.ok) {
         console.log("Failed to fetch recently played")
@@ -42,6 +45,7 @@ export default function Home() {
   }, [])
 
   console.log(recentlyPlayed)
+  console.log(SERVER_URL)
 
   return (
     <main className="container flex flex-col justify-items-center p-8 gap-16 font-[family-name:var(--font-geist-sans)]">

@@ -23,7 +23,7 @@ export default function SchedulePage() {
     const fetchData = async () => {
       const startDate = weekStart.toISOString().split("T")[0]
       const response = await fetch(
-        `http://localhost:8001/api/schedules/${startDate}`
+        `http://5.75.188.62:8001/api/schedules/${startDate}`
       )
 
       if (!response.ok) {

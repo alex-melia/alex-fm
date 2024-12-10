@@ -48,3 +48,8 @@ export function getRelativeTime(playedAt: string): string {
     return "just now"
   }
 }
+
+export const SERVER_URL =
+  process.env.NODE_ENV === "production"
+    ? process.env.BACKEND_URL
+    : process.env.DEV_BACKEND_URL

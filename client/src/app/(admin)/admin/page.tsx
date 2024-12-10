@@ -4,7 +4,7 @@ import { Playlist } from "@/types/types"
 import AddPlaylist from "@/components/ui/add-playlist"
 
 export default async function AdminPage() {
-  const response = await fetch("http://localhost:8001/api/playlists")
+  const response = await fetch("http://5.75.188.62:8001/api/playlists")
 
   if (!response.ok) {
     console.log("Error:", response.statusText)

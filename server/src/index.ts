@@ -199,11 +199,12 @@ import { testRoutes } from "./routes/test"
 dotenv.config({ path: "./.env" })
 
 // const prisma = new PrismaClient()
-const ICECAST_URL = "icecast://source:hackme@127.0.0.1:8000/stream"
+const ICECAST_URL = "icecast://source:alexfm@5.75.188.62:8000/stream"
 
-ffmpeg.setFfmpegPath(
-  "C:\\ffmpeg-2024-12-04-git-2f95bc3cb3-full_build\\bin\\ffmpeg.exe"
-)
+ffmpeg.setFfmpegPath("/usr/bin/ffmpeg")
+// ffmpeg.setFfmpegPath(
+//   "C:\\ffmpeg-2024-12-04-git-2f95bc3cb3-full_build\\bin\\ffmpeg.exe"
+// )
 
 let songQueue: {
   id: string
