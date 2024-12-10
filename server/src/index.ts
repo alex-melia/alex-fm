@@ -199,8 +199,8 @@ import { testRoutes } from "./routes/test"
 dotenv.config({ path: "./.env" })
 
 // const prisma = new PrismaClient()
-// const ICECAST_URL = "icecast://source:alexfm@5.75.188.62:8000/stream"
-const ICECAST_URL = "https://api.alexmelia.dev/stream"
+const ICECAST_URL = "icecast://source:alexfm@5.75.188.62:8443/stream"
+// const ICECAST_URL = "https://api.alexmelia.dev/stream"
 
 ffmpeg.setFfmpegPath("/usr/bin/ffmpeg")
 // ffmpeg.setFfmpegPath(
