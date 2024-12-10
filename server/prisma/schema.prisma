@@ -1,0 +1,59 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+  directUrl         = env("DIRECT_URL")
+}
+
+model Playlist {
+  id           String     @id @default(cuid())
+  name         String
+  description  String?
+  genre        String?
+  createdAt    DateTime   @default(now())
+  updatedAt    DateTime   @updatedAt
+  songs        Song[]
+  schedules    Schedule[]
+}
+
+model Song {
+  id          String     @id @default(cuid())
+  title       String
+  image       String?
+  artist      String
+  album       String?
+  genre       String?
+  mp3Url      String     
+  duration    Int        
+  position    Int        
+  playlistId  String
+  playlist    Playlist   @relation(fields: [playlistId], references: [id])
+  recentlyPlayed RecentlyPlayed[]
+  createdAt   DateTime   @default(now())
+}
+
+model Schedule {
+  id          String     @id @default(cuid())
+  startTime   DateTime   
+  duration    Int        
+  dayOfWeek   Int        
+  playlistId  String
+  playlist    Playlist   @relation(fields: [playlistId], references: [id])
+  createdAt   DateTime   @default(now())
+}
+
+model RecentlyPlayed {
+  id          String     @id @default(cuid())
+  songId      String     
+  song        Song       @relation(fields: [songId], references: [id])
+  playedAt    DateTime   @default(now())
+}
