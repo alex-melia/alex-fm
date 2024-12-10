@@ -1,5 +1,0 @@
-{
-  "build": {
-    "ignoreCommand": "echo 'Skipping ESLint step in Vercel builds.'"
-  }
-}
