@@ -321,6 +321,24 @@ async function streamSongs() {
   }
 }
 
+async function fetchWithRetry(url, options = {}, retries = 3, delay = 1000) {
+  for (let i = 0; i < retries; i++) {
+    try {
+      const response = await fetch(url, options)
+      if (!response.ok)
+        throw new Error(`HTTP error! status: ${response.status}`)
+      return response
+    } catch (error) {
+      console.error(`Fetch attempt ${i + 1} failed: ${error.message}`)
+      if (i < retries - 1) {
+        await new Promise((resolve) => setTimeout(resolve, delay * (i + 1)))
+      } else {
+        throw error
+      }
+    }
+  }
+}
+
 async function streamSongToAudioStream(songUrl: string) {
   if (!audioStream) {
     console.error("Audio stream is not initialized.")
@@ -328,7 +346,7 @@ async function streamSongToAudioStream(songUrl: string) {
   }
 
   return new Promise<void>((resolve, reject) => {
-    fetch(songUrl)
+    fetchWithRetry(songUrl)
       .then((res) => {
         if (!res.body) {
           reject(new Error("Failed to fetch song stream."))
@@ -412,34 +430,34 @@ async function fetchSongs(playlistId: string) {
   }))
 }
 
-async function scheduleSongs() {
-  const schedules = await prisma.schedule.findMany({
-    include: { playlist: { include: { songs: true } } },
-  })
+// async function scheduleSongs() {
+//   const schedules = await prisma.schedule.findMany({
+//     include: { playlist: { include: { songs: true } } },
+//   })
 
-  schedules.forEach((scheduleItem) => {
-    const { startTime, playlist } = scheduleItem
+//   schedules.forEach((scheduleItem) => {
+//     const { startTime, playlist } = scheduleItem
 
-    const [hour, minute] = [
-      new Date(startTime).getHours(),
-      new Date(startTime).getMinutes(),
-    ]
+//     const [hour, minute] = [
+//       new Date(startTime).getHours(),
+//       new Date(startTime).getMinutes(),
+//     ]
 
-    schedule.scheduleJob({ hour, minute, tz: "UTC" }, async () => {
-      console.log(`Starting playlist: ${playlist.name}`)
-      try {
-        const songs = await fetchSongs(playlist.id)
-        songQueue.push(...songs)
-        resetAudioStream()
-      } catch (err: any) {
-        console.error(
-          `Error fetching songs for playlist ${playlist.name}:`,
-          err.message
-        )
-      }
-    })
-  })
-}
+//     schedule.scheduleJob({ hour, minute, tz: "UTC" }, async () => {
+//       console.log(`Starting playlist: ${playlist.name}`)
+//       try {
+//         const songs = await fetchSongs(playlist.id)
+//         songQueue.push(...songs)
+//         resetAudioStream()
+//       } catch (err: any) {
+//         console.error(
+//           `Error fetching songs for playlist ${playlist.name}:`,
+//           err.message
+//         )
+//       }
+//     })
+//   })
+// }
 
 // async function initializeSchedule() {
 //   const today = new Date();
@@ -467,6 +485,52 @@ async function scheduleSongs() {
 
 // schedule.scheduleJob("0 0 * * *", initializeSchedule);
 
+async function initializeTodaySchedule() {
+  const today = new Date()
+  today.setHours(0, 0, 0, 0)
+
+  const tomorrow = new Date(today)
+  tomorrow.setDate(today.getDate() + 1)
+
+  const schedules = await prisma.schedule.findMany({
+    where: {
+      startTime: {
+        gte: today,
+        lt: tomorrow,
+      },
+    },
+    include: { playlist: { include: { songs: true } } },
+  })
+
+  schedules.forEach((scheduleItem) => {
+    const startTime = new Date(scheduleItem.startTime)
+
+    schedule.scheduleJob(startTime, async () => {
+      console.log(`Starting playlist: ${scheduleItem.playlist.name}`)
+      try {
+        const songs = await fetchSongs(scheduleItem.playlist.id)
+        songQueue.push(...songs)
+        resetAudioStream()
+      } catch (error) {
+        console.error("Error initializing playlist:", error.message)
+      }
+    })
+  })
+}
+
+// Initialize the schedule on server startup
+;(async () => {
+  await initializeTodaySchedule()
+
+  // Schedule daily initialization at midnight
+  schedule.scheduleJob("0 0 * * *", async () => {
+    console.log("Initializing schedule for the new day...")
+    await initializeTodaySchedule()
+  })
+
+  streamSongs()
+})()
+
 io.on("connection", (socket) => {
   console.log("A user connected")
   console.log(currentMetadata)
@@ -474,13 +538,13 @@ io.on("connection", (socket) => {
   socket.emit("metadataUpdate", currentMetadata)
 })
 
-scheduleSongs()
-  .then(() => {
-    console.log("Daily schedules initialized.")
+// scheduleSongs()
+//   .then(() => {
+//     console.log("Daily schedules initialized.")
 
-    streamSongs()
-  })
-  .catch((err) => console.error("Error initializing schedules:", err))
+//     streamSongs()
+//   })
+//   .catch((err) => console.error("Error initializing schedules:", err))
 
 app.use(
   cors({
@@ -498,4 +562,3 @@ app.use("/api", testRoutes)
 server.listen(8001, () => {
   console.log("Listening on port 8001")
 })
-//
