@@ -23,7 +23,7 @@ export default function AddScheduleModal({
 
   React.useEffect(() => {
     const fetchPlaylists = async () => {
-      const response = await fetch(`http://localhost:8001/api/playlists`)
+      const response = await fetch(`http://5.75.188.62:8001/api/playlists`)
 
       if (!response.ok) {
         console.error("Failed to fetch schedules")
@@ -56,7 +56,7 @@ export default function AddScheduleModal({
     const timestamp = constructTimestamp(day, time)
 
     startTransition(async () => {
-      const response = await fetch(`http://localhost:8001/api/schedules`, {
+      const response = await fetch(`http://5.75.188.62:8001/api/schedules`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
