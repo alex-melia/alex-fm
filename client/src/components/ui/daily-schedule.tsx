@@ -1,9 +1,18 @@
-// @ts-nocheck
 import { Schedule } from "@/types/types"
 import { PlusIcon } from "lucide-react"
 import React from "react"
 
-export default function DailySchedule({ day, schedules, onAdd, onEdit }) {
+export default function DailySchedule({
+  day,
+  schedules,
+  onAdd,
+  onEdit,
+}: {
+  day: Date
+  schedules: Schedule[]
+  onAdd: (day: Date) => void
+  onEdit: (schedule: Schedule) => void
+}) {
   const hours = Array.from({ length: 24 }, (_, i) => i)
 
   return (
@@ -25,9 +34,9 @@ export default function DailySchedule({ day, schedules, onAdd, onEdit }) {
             const endTime = new Date(
               startTime.getTime() + schedule.duration * 60 * 1000
             )
-            const startHour = startTime.getHours()
-            const startMinute = startTime.getMinutes()
-            const durationInMinutes = schedule.duration
+            // const startHour = startTime.getHours()
+            // const startMinute = startTime.getMinutes()
+            // const durationInMinutes = schedule.duration
 
             return (
               <div

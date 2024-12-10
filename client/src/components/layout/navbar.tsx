@@ -5,6 +5,7 @@ import ThemeSwitcher from "./theme-switcher"
 import { GithubIcon } from "lucide-react"
 import { usePathname } from "next/navigation"
 import { cn } from "@/lib/utilts"
+import Link from "next/link"
 
 export default function Navbar() {
   const pathname = usePathname()
@@ -25,7 +26,7 @@ export default function Navbar() {
           <p className="text-red-500 font-bold text-2xl">FM</p>
         </span>
         <ul className="flex items-center gap-12">
-          <a
+          <Link
             className={cn(
               "text-xl font-medium text-blue-500 tracking-tighter transition ease-in-out hover:-translate-y-1",
               isActive("/recently-played")
@@ -33,9 +34,9 @@ export default function Navbar() {
             href="/recently-played"
           >
             Recently Played
-          </a>
+          </Link>
 
-          <a
+          <Link
             className={cn(
               "text-xl font-medium text-blue-500 tracking-tighter transition ease-in-out hover:-translate-y-1",
               isActive("/admin")
@@ -43,7 +44,7 @@ export default function Navbar() {
             href="/admin"
           >
             Admin
-          </a>
+          </Link>
 
           <a className="text-blue-500" href="#">
             <GithubIcon />

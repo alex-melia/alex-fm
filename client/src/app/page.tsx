@@ -6,15 +6,16 @@ import { RecentlyPlayed, Song } from "@/types/types"
 import CustomAudioPlayer from "@/components/ui/audio-player"
 import { ArrowRightCircle } from "lucide-react"
 import { getRelativeTime } from "@/lib/utilts"
-import { SERVER_URL } from "@/lib/utilts"
 
 const socket = io(`http://5.75.188.62:8001`, {
   transports: ["websocket"],
 })
 
 export default function Home() {
-  const [currentSong, setCurrentSong] = React.useState<any | null>(null)
-  const [recentlyPlayed, setRecentlyPlayed] = React.useState<any | null>([])
+  const [currentSong, setCurrentSong] = React.useState<Song | null>(null)
+  const [recentlyPlayed, setRecentlyPlayed] = React.useState<
+    RecentlyPlayed[] | null
+  >([])
 
   React.useEffect(() => {
     const metadataListener = async (data: Song) => {
@@ -44,9 +45,6 @@ export default function Home() {
     }
   }, [])
 
-  console.log(recentlyPlayed)
-  console.log(SERVER_URL)
-
   return (
     <main className="container flex flex-col justify-items-center p-8 gap-16 font-[family-name:var(--font-geist-sans)]">
       <div className="flex flex-col">
@@ -69,9 +67,12 @@ export default function Home() {
           <h3 className="text-3xl font-semibold mb-12">Recently Played</h3>
 
           <div className="grid grid-cols-5 grid-rows-2 gap-12 w-full">
-            {recentlyPlayed.length > 0 ? (
+            {recentlyPlayed && recentlyPlayed.length > 0 ? (
               recentlyPlayed
-                .filter((entry: any) => entry.song.title !== "Advertisement")
+                .filter(
+                  (entry: RecentlyPlayed) =>
+                    entry.song.title !== "Advertisement"
+                )
                 .slice(0, 9)
                 .map((entry: RecentlyPlayed, index: number) => (
                   <div key={index} className="text-center">

@@ -1,18 +1,11 @@
-// @ts-nocheck
 "use client"
 
 import React, { useRef, useState } from "react"
 import { motion } from "framer-motion"
-import {
-  Megaphone,
-  MegaphoneOff,
-  PlayIcon,
-  Square,
-  SquareIcon,
-} from "lucide-react"
+import { Megaphone, MegaphoneOff, PlayIcon, Square } from "lucide-react"
 import { Song } from "@/types/types"
 
-export default function CustomAudioPlayer({ song }: { song: Song }) {
+export default function CustomAudioPlayer({ song }: { song: Song | null }) {
   const audioRef = useRef<HTMLAudioElement>(null)
   const [isPlaying, setIsPlaying] = useState(false)
   const [isMuted, setMuted] = useState(false)
@@ -40,9 +33,9 @@ export default function CustomAudioPlayer({ song }: { song: Song }) {
   const handleMuteToggle = () => {
     if (audioRef.current) {
       if (isMuted) {
-        audioRef.current.volume = volume // Restore previous volume
+        audioRef.current.volume = volume
       } else {
-        audioRef.current.volume = 0 // Mute the audio
+        audioRef.current.volume = 0
       }
     }
     setMuted(!isMuted)
@@ -56,6 +49,7 @@ export default function CustomAudioPlayer({ song }: { song: Song }) {
       </audio>
 
       <motion.div
+        // @ts-ignore
         onClick={handlePlay}
         className="relative w-64 h-64 rounded-full bg-gray-800 border-4 border-black flex items-center justify-center cursor-pointer overflow-hidden"
         style={{

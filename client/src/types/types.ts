@@ -5,12 +5,14 @@ export type Song = {
   image: string
   title: string
   position: number
+  playlist: Playlist
   duration: number
 }
 
 export type Schedule = {
   id: string
   startTime: Date
+  duration: number
   playlistId: string
   playlist: Playlist
 }
@@ -18,7 +20,8 @@ export type Schedule = {
 export type Playlist = {
   id: string
   name: string
-  genre: String
+  description: string
+  genre: string
   songs: Song[]
   startDate: string
 }

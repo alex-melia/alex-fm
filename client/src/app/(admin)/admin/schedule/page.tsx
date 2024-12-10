@@ -7,7 +7,7 @@ import React from "react"
 
 export default function SchedulePage() {
   const [showModal, setShowModal] = React.useState(false)
-  const [editDay, setEditDay] = React.useState<any | null>(null)
+  const [editDay, setEditDay] = React.useState<Date | null>(null)
   const [weekStart, setWeekStart] = React.useState(() => {
     const now = new Date()
     const day = now.getDay()
@@ -46,7 +46,7 @@ export default function SchedulePage() {
     return day
   })
 
-  const handleAddClick = (day: any) => {
+  const handleAddClick = (day: Date) => {
     setEditDay(day)
     setShowModal(true)
   }

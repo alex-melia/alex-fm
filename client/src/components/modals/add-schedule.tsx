@@ -7,7 +7,7 @@ export default function AddScheduleModal({
   day,
   onAddSchedule,
 }: {
-  day: any
+  day: Date
   onAddSchedule: () => void
 }) {
   const [isPending, startTransition] = React.useTransition()
