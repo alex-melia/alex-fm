@@ -194,6 +194,7 @@ import { songRoutes } from "./routes/song"
 import { playlistRoutes } from "./routes/playlist"
 import { recentlyPlayedRoutes } from "./routes/recently-played"
 import { scheduleRoutes } from "./routes/schedule"
+import { testRoutes } from "./routes/test"
 
 dotenv.config({ path: "./.env" })
 
@@ -490,6 +491,7 @@ app.use("/api/songs", songRoutes)
 app.use("/api/playlists", playlistRoutes)
 app.use("/api/recently-played", recentlyPlayedRoutes)
 app.use("/api/schedules", scheduleRoutes)
+app.use("/api", testRoutes)
 
 server.listen(8001, () => {
   console.log("Listening on port 8001")
