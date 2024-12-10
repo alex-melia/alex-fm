@@ -240,6 +240,7 @@ function resetAudioStream() {
     })
     .on("error", (err) => {
       console.error("FFmpeg error:", err.message)
+      // setTimeout(resetAudioStream, 2000)
     })
     .on("end", () => {
       console.log("FFmpeg streaming ended.")
@@ -342,9 +343,9 @@ async function streamSongToAudioStream(songUrl: string) {
         res.body
           .pipe(realTimePacer)
           .on("data", (chunk) => {
-            const canPush = audioStream?.push(chunk)
-            if (!canPush) {
-              audioStream?.once("drain", () => audioStream?.push(chunk))
+            if (!audioStream?.push(chunk)) {
+              res.body.pause() // Pause fetching data if backpressure occurs
+              audioStream.once("drain", () => res.body.resume()) // Resume when drain is triggered
             }
           })
           .on("end", () => {
@@ -362,6 +363,24 @@ async function streamSongToAudioStream(songUrl: string) {
       })
   })
 }
+
+//   res.body
+//     .pipe(realTimePacer)
+//     .on("data", (chunk) => {
+//       const canPush = audioStream?.push(chunk)
+//       if (!canPush) {
+//         audioStream?.once("drain", () => audioStream?.push(chunk))
+//       }
+//     })
+//     .on("end", () => {
+//       console.log("Finished streaming song.")
+//       resolve()
+//     })
+//     .on("error", (err) => {
+//       console.error("Error while streaming song:", err.message)
+//       reject(err)
+//     })
+// })
 
 async function fetchSongs(playlistId: string) {
   const playlist = await prisma.playlist.findUnique({
