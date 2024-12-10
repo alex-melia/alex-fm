@@ -8,12 +8,12 @@ export default function DailySchedule({
   onAdd,
   onEdit,
 }: {
-  day: Date
+  day: any
   schedules: Schedule[]
   onAdd: (day: Date) => void
   onEdit: (schedule: Schedule) => void
 }) {
-  const hours = Array.from({ length: 24 }, (_, i) => i)
+  // const hours = Array.from({ length: 24 }, (_, i) => i)
 
   return (
     <div className="flex flex-col p-2">
