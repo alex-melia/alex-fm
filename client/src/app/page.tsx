@@ -4,8 +4,7 @@ import React from "react"
 import io from "socket.io-client"
 import { RecentlyPlayed, Song } from "@/types/types"
 import CustomAudioPlayer from "@/components/ui/audio-player"
-import { ArrowRightCircle } from "lucide-react"
-import { getRelativeTime } from "@/lib/utilts"
+import RecentlyPlayedGrid from "@/components/ui/recently-played-grid"
 
 const socket = io(`https://api.alexmelia.dev`, {
   transports: ["websocket"],
@@ -26,7 +25,7 @@ export default function Home() {
       )
 
       if (!response.ok) {
-        console.log("Failed to fetch recently played")
+        console.error("Failed to fetch recently played")
         return
       }
 
@@ -66,38 +65,7 @@ export default function Home() {
         <div className="flex flex-col w-full mt-24">
           <h3 className="text-3xl font-semibold mb-12">Recently Played</h3>
 
-          <div className="grid grid-cols-5 grid-rows-2 gap-12 w-full">
-            {recentlyPlayed && recentlyPlayed.length > 0 ? (
-              recentlyPlayed
-                .filter(
-                  (entry: RecentlyPlayed) =>
-                    entry.song.title !== "Advertisement"
-                )
-                .slice(0, 9)
-                .map((entry: RecentlyPlayed, index: number) => (
-                  <div key={index} className="text-center">
-                    <img
-                      className="mb-2 w-full h-64"
-                      src={entry.song.image ? entry.song.image : ""}
-                    />
-                    <p className="text-lg font-medium">{entry.song.title}</p>
-                    <p className="text-sm text-gray-500">{entry.song.artist}</p>
-                    <p className="text-sm text-black dark:text-gray-200 mt-2">
-                      played {getRelativeTime(entry.playedAt)}
-                    </p>
-                  </div>
-                ))
-            ) : (
-              <p className="text-gray-500">No songs played recently.</p>
-            )}
-            <a
-              href="/recently-played"
-              className="text-blue-500 flex flex-col gap-8 items-center justify-center"
-            >
-              <span className="text-3xl tracking-tight">See more</span>
-              <ArrowRightCircle size={64} />
-            </a>
-          </div>
+          <RecentlyPlayedGrid recentlyPlayed={recentlyPlayed} />
         </div>
       </div>
     </main>

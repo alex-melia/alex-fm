@@ -34,7 +34,7 @@ export default function PlaylistCard({ playlist }: { playlist: Playlist }) {
       setItems(updatedSongs)
 
       const response = await fetch(
-        `http://localhost:8001/api/playlists/${playlist.id}/songs`,
+        `https://api.alexmelia.dev/api/playlists/${playlist.id}/songs`,
         {
           method: "PUT",
           headers: {
