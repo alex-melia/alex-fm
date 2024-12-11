@@ -503,6 +503,8 @@ async function initializeTodaySchedule() {
     include: { playlist: { include: { songs: true } } },
   })
 
+  console.log(schedules.length)
+
   schedules.forEach((scheduleItem) => {
     const startTime = new Date(scheduleItem.startTime)
 
