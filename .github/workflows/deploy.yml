@@ -28,15 +28,18 @@ jobs:
 
       - name: Copy files to server
         run: |
-          sshpass -p "${{ secrets.SERVER_PASSWORD }}" rsync -avz --delete -e "ssh -o StrictHostKeyChecking=no" ./server/ root@${{ secrets.SERVER_IP }}:/root/radio/server
+          ssh -i ~/.ssh/id_ed25519 -o StrictHostKeyChecking=no root@${{ secrets.SERVER_IP }} "
+            mkdir -p /root/radio/server
+          "
+          rsync -avz --delete -e "ssh -i ~/.ssh/id_ed25519 -o StrictHostKeyChecking=no" ./server/ root@${{ secrets.SERVER_IP }}:/root/radio/server
 
       - name: Deploy with PM2
         run: |
-          sshpass -p "${{ secrets.SERVER_PASSWORD }}" ssh root@${{ secrets.SERVER_IP }} "
+          ssh -i ~/.ssh/id_ed25519 -o StrictHostKeyChecking=no root@${{ secrets.SERVER_IP }} "
             cd /root/radio/server && \
             export NODE_ENV=production && \
             export DATABASE_URL=${{ secrets.DATABASE_URL }} && \
             export DIRECT_URL=${{ secrets.DIRECT_URL }} && \
-            pm2 reload ecosystem.config.js --env production && \
-            pm2 status
+            pm2 start npm --name server -- run start --update-env || \
+            pm2 restart server --update-env
           "
