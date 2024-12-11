@@ -46,6 +46,7 @@ jobs:
             export NODE_ENV=production && \
             export DATABASE_URL=${{ secrets.DATABASE_URL }} && \
             export DIRECT_URL=${{ secrets.DIRECT_URL }} && \
-            pm2 start npm --name server -- run start --update-env || \
-            pm2 restart server --update-env
+            pm2 delete server || true && \
+            pm2 start npm --name server -- run start --update-env && \
+            pm2 status
           "
