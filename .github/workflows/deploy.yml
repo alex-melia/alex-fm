@@ -37,7 +37,7 @@ jobs:
 
       - name: Copy files to server
         run: |
-          rsync -avz ./server/ root@178.156.137.38:/root/radio/server
+          sshpass -p "root" rsync -avz --delete -e "ssh -o StrictHostKeyChecking=no" ./server/ root@178.156.137.38:/root/radio/server
 
       - name: Deploy with PM2
         run: |
