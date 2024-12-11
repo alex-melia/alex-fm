@@ -18,17 +18,14 @@ jobs:
         with:
           node-version: "20"
 
-      - name: Install sshpass
-        run: sudo apt-get update && sudo apt-get install -y sshpass
-
       - name: Install SSH key
         uses: shimataro/ssh-key-action@v2.4.0
         with:
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           known_hosts: |
-            178.156.137.38 ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABgQDIdfNG0kIVksQ0FoAxgV/miNwwvFIoNn5uLkDJKQoT2fIgH/LAjaqudjzXxms17P72lYMANPrzqPWfKBvltaE0oveB+4zReJRw6ygCH6c7TM3kscfQkQfzD0pTGwjGrhSAyhnreZwrvJsavwAhkRxA9VpraIed/JibTa28My1OoHLwgVWaRl+woBvRv5oBD4MJlZ9L+QF2syt+YbbQPsZa0ogc6zAWcxIOaxnfF9LdIguKiMdZkIloGYlgUy8/IIrN99sWRPg1tKhwtpwT6KJEqry5psOlmwCT0lv6Yg7c6Leb6/K/h24dRoszp5nmEpxgiaIG9i2ZLCRqyya4Rz3T1HGN/QdDgRzYuMVS13EkqO+BrBIaH5LxtfMb5shnyxqKfhf49hPjTpjxxk4LRlGFRidmTMmq4T7ICDhldYKP62B47glVz8gx8tu8GGCsRsLQhMAOtj6ZjN5ll6IwHLpCWqcIhc2gKm5guDRb2HMhUMjqRRTIjaXB6DnFPzhcLxE=
-            178.156.137.38 ecdsa-sha2-nistp256 AAAAE2VjZHNhLXNoYTItbmlzdHAyNTYAAAAIbmlzdHAyNTYAAABBBB6n4O04/y0Ls08tsGj5pzEmyA8RVazn3IcL/+8WU2rT+3YDroTqRpdJqGVc7vKHoDNoyrYjr8j3Ja5LU6lgXyw=
-            178.156.137.38 ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIHbTI/lAXGPxKm/n/eQ/2QuLasNITbacKAwke37ZG/ix
+            178.156.137.38 ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABgQCFAQSSX6Xrflfn4Ngx4U9cuWI6UmNdrYZPscVrmEc+i4CUTHEOUUG6y4AtxTdhSlyVwLMH88CC7JzNpp1HdQnJeDUAKLGTNRIXx0H39DSRU7/+3kDdlWOuaSW1BH7cEfma6qKU5tBtAANkZM/OS8p45AotdTeXAdH9NemFc2KgtkkxNhwuMJvfIdIeeQy/ZDNxDejtXZgsC62WwyJYu7E/P0YoH8+gWgzWx8hOVTfWjo2oFcYIpqpZPXSU17j0imO0PuCuOA7LGa6q6NQRJqs3ZcRYsOCcR7fkCcNIL71VeDHfy1+9tnazzar/GcMElENB2K9nZGtg7DplEQ4AQzNiIhROXHsvZp+R1/KdkqmciG8/opKzCTVAY7Cim0mp/8c1MGB1yKFFvZlWZk281xYL1hOuFm8jcx34ZEFq/ZLSBDDUR0hox7ogk1x/xXvkRTEZ3lShDYSPRyD+BNyYM+zwY7g5RxChlcmaUq7Ys1L4J6N9IEqyjTfuiP3DOfd4RB0=
+            178.156.137.38 ecdsa-sha2-nistp256 AAAAE2VjZHNhLXNoYTItbmlzdHAyNTYAAAAIbmlzdHAyNTYAAABBBIeIYIKT6yvBc0wEPfrhyXJ9VQ1HZZKYAU4iiW9x+RYKiAx5QlME0emSmLEjzuvBGTktXxvA3TLuXNvHHi6lciA=
+            178.156.137.38 ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIEzXDKFygr1DMXE7s3q0aObBux/5jfsoM+LWya3drO62
 
       - name: Install dependencies
         run: npm install
@@ -40,11 +37,11 @@ jobs:
 
       - name: Copy files to server
         run: |
-          sshpass -p "root" rsync -avz --delete -e "ssh -o StrictHostKeyChecking=no" ./server/ root@178.156.137.38:/root/radio/server
+          rsync -avz ./server/ root@178.156.137.38:/root/radio/server
 
       - name: Deploy with PM2
         run: |
-          sshpass -p "root" ssh -o StrictHostKeyChecking=no root@178.156.137.38 "
+          root@178.156.137.38 "
             cd /root/radio/server && \
             export NODE_ENV=production && \
             export DATABASE_URL=${{ secrets.DATABASE_URL }} && \
