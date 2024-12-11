@@ -10,7 +10,7 @@ module.exports = {
       env_production: {
         NODE_ENV: "production",
         DATABASE_URL:
-          "postgresql://postgres.lvquujcrydrprecyklwv:5QfUeqKukxH0UA0P@aws-0-us-east-1.pooler.supabase.com:5432/postgres",
+          "postgresql://postgres.lvquujcrydrprecyklwv:5QfUeqKukxH0UA0P@aws-0-us-east-1.pooler.supabase.com:5432/postgres?connection_limit=10",
         DIRECT_URL:
           "postgresql://postgres.lvquujcrydrprecyklwv:5QfUeqKukxH0UA0P@aws-0-us-east-1.pooler.supabase.com:5432/postgres",
       },
