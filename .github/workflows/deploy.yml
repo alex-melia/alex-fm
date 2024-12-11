@@ -35,9 +35,6 @@ jobs:
 
       - name: Copy files to server
         run: |
-          ssh -i ~/.ssh/id_ed25519 -o StrictHostKeyChecking=no root@${{ secrets.SERVER_IP }} "
-            mkdir -p /root/radio/server
-          "
           rsync -avz --delete -e "ssh -i ~/.ssh/id_ed25519 -o StrictHostKeyChecking=no" ./server/ root@${{ secrets.SERVER_IP }}:/root/radio/server
 
       - name: Deploy with PM2
