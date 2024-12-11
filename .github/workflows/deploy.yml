@@ -41,7 +41,7 @@ jobs:
 
       - name: Deploy with PM2
         run: |
-          ssh root@178.156.137.38 "
+          sshpass -p "root" ssh -o StrictHostKeyChecking=no root@178.156.137.38 "
             cd /root/radio/server && \
             export NODE_ENV=production && \
             export DATABASE_URL=${{ secrets.DATABASE_URL }} && \
