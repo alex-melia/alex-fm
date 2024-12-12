@@ -367,8 +367,12 @@ async function streamSongToAudioStream(songUrl: string) {
           .pipe(realTimePacer)
           .on("data", (chunk) => {
             if (!audioStream?.push(chunk)) {
+              console.log("chunk not pushed")
+
               res.body.pause() // Pause fetching data if backpressure occurs
+              console.log("paused")
               audioStream.once("drain", () => res.body.resume()) // Resume when drain is triggered
+              console.log("drained")
             }
             console.log(chunk)
           })
