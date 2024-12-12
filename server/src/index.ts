@@ -497,16 +497,16 @@ async function fetchSongs(playlistId: string) {
 
 async function initializeTodaySchedule() {
   const today = new Date()
-  today.setHours(0, 0, 0, 0)
+  today.setUTCHours(0, 0, 0, 0)
 
   const tomorrow = new Date(today)
-  tomorrow.setDate(today.getDate() + 1)
+  tomorrow.setUTCDate(today.getUTCDate() + 1)
 
   const schedules = await prisma.schedule.findMany({
     where: {
       startTime: {
-        gte: today,
-        lt: tomorrow,
+        gte: today.toISOString(),
+        lt: tomorrow.toISOString(),
       },
     },
     include: { playlist: { include: { songs: true } } },
@@ -517,7 +517,7 @@ async function initializeTodaySchedule() {
   schedules.forEach((scheduleItem) => {
     const startTime = new Date(scheduleItem.startTime)
 
-    schedule.scheduleJob(startTime, async () => {
+    schedule.scheduleJob(new Date(startTime.getTime() + 1000), async () => {
       console.log(`Starting playlist: ${scheduleItem.playlist.name}`)
       try {
         const songs = await fetchSongs(scheduleItem.playlist.id)
