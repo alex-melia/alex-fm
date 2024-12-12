@@ -305,13 +305,13 @@ async function streamSongs() {
     await streamSongToAudioStream(song.mp3Url)
 
     // Wait for the duration of the song to pass
-    // const elapsedTime = Date.now() - startTime
-    // const songDurationInMs = (song.duration || 0) * 1000 // Assuming duration is in seconds
-    // if (elapsedTime < songDurationInMs) {
-    //   await new Promise((resolve) =>
-    //     setTimeout(resolve, songDurationInMs - elapsedTime)
-    //   )
-    // }
+    const elapsedTime = Date.now() - startTime
+    const songDurationInMs = (song.duration || 0) * 1000 // Assuming duration is in seconds
+    if (elapsedTime < songDurationInMs) {
+      await new Promise((resolve) =>
+        setTimeout(resolve, songDurationInMs - elapsedTime)
+      )
+    }
 
     try {
       await prisma.recentlyPlayed.create({
@@ -361,7 +361,7 @@ async function streamSongToAudioStream(songUrl: string) {
           transform(chunk, encoding, callback) {
             setTimeout(() => {
               callback(null, chunk) // Pace the chunk processing
-            }, 100) // Adjust for desired bitrate pacing
+            }, 50) // Adjust for desired bitrate pacing
           },
         })
 
