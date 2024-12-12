@@ -370,6 +370,7 @@ async function streamSongToAudioStream(songUrl: string) {
               res.body.pause() // Pause fetching data if backpressure occurs
               audioStream.once("drain", () => res.body.resume()) // Resume when drain is triggered
             }
+            console.log(chunk)
           })
           .on("end", () => {
             console.log("Finished streaming song.")
