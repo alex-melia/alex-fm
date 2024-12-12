@@ -233,6 +233,8 @@ function resetAudioStream() {
     read() {},
   })
 
+  audioStream.setMaxListeners(50)
+
   ffmpegProcess = ffmpeg()
     .input(audioStream)
     .inputOptions(["-re"])
