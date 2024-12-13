@@ -361,7 +361,7 @@ async function streamSongToAudioStream(songUrl: string) {
           transform(chunk, encoding, callback) {
             setTimeout(() => {
               callback(null, chunk) // Pace the chunk processing
-            }, 50) // Adjust for desired bitrate pacing
+            }, 100) // Adjust for desired bitrate pacing
           },
         })
 
