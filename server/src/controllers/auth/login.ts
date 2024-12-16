@@ -24,6 +24,6 @@ export async function loginUser(req: Request, res: Response) {
     return res.status(200).json({ jwt: token })
   } catch (error) {
     console.error(error)
-    return res.status(500).json({ message: "Failed to add playlist" })
+    return res.status(500).json({ message: "Failed to login" })
   }
 }

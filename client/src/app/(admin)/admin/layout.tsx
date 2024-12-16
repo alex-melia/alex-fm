@@ -2,6 +2,7 @@ import React from "react"
 import AdminNavbar from "@/components/layout/admin-nav"
 import { cookies } from "next/headers"
 import { redirect } from "next/navigation"
+import jwt from "jsonwebtoken"
 
 export default async function AdminLayout({
   children,
@@ -9,11 +10,19 @@ export default async function AdminLayout({
   children: React.ReactNode
 }) {
   const cookieStore = await cookies()
-  const isAdmin = cookieStore.has("token")
+  const token = cookieStore.get("token")?.value
 
-  console.log(isAdmin)
+  if (!token) {
+    redirect("/login")
+  }
 
-  if (!isAdmin) {
+  try {
+    const decoded = jwt.verify(token, process.env.ACCESS_TOKEN_SECRET!)
+
+    if (!decoded) {
+      redirect("/login")
+    }
+  } catch (error) {
     redirect("/login")
   }
 
