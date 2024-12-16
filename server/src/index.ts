@@ -300,5 +300,7 @@ app.use("/api/auth", authRoutes)
 app.use("/api", testRoutes)
 
 server.listen(8001, () => {
+  console.log(process.env.PASSWORD)
+
   console.log("Listening on port 8001")
 })
