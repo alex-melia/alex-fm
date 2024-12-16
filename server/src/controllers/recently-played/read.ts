@@ -1,7 +1,4 @@
 import { Request, Response } from "express"
-// import { PrismaClient } from "@prisma/client"
-
-// const prisma = new PrismaClient()
 import { prisma } from "../../lib/db"
 
 export async function getRecentlyPlayed(req: Request, res: Response) {
@@ -13,6 +10,7 @@ export async function getRecentlyPlayed(req: Request, res: Response) {
       orderBy: {
         playedAt: "desc",
       },
+      take: 49,
     })
 
     if (!recentlyPlayed) {

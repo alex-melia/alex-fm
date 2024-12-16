@@ -3,6 +3,7 @@
 import React from "react"
 import { PlusCircleIcon } from "lucide-react"
 import AddPlaylistModal from "../modals/add-playlist"
+import { cn } from "@/lib/utilts"
 
 export default function AddPlaylist() {
   const [showModal, setShowModal] = React.useState(false)
@@ -18,7 +19,7 @@ export default function AddPlaylist() {
 
   return (
     <>
-      <div className="relative flex flex-col items-center shadow-md rounded-md w-full h-full p-4">
+      <div className="relative flex flex-col items-center shadow-md rounded-md w-full min-h-[280px] h-full p-4">
         <h3 className="text-3xl font-semibold tracking-tight -z-10">
           Add Playlist
         </h3>

@@ -1,6 +1,7 @@
+import React from "react"
 import { Schedule } from "@/types/types"
 import { PlusIcon } from "lucide-react"
-import React from "react"
+import { cn } from "@/lib/utilts"
 
 export default function DailySchedule({
   day,
@@ -13,7 +14,47 @@ export default function DailySchedule({
   onAdd: (day: Date) => void
   onEdit: (schedule: Schedule) => void
 }) {
-  // const hours = Array.from({ length: 24 }, (_, i) => i)
+  const [currentIndex, setCurrentIndex] = React.useState(0)
+  const [itemsPerPage, setItemsPerPage] = React.useState(4)
+
+  React.useEffect(() => {
+    const updateItemsPerPage = () => {
+      if (window.innerWidth >= 1024) {
+        setItemsPerPage(4)
+      } else if (window.innerWidth >= 768) {
+        setItemsPerPage(3)
+      } else {
+        setItemsPerPage(1)
+      }
+    }
+
+    updateItemsPerPage()
+
+    window.addEventListener("resize", updateItemsPerPage)
+
+    return () => {
+      window.removeEventListener("resize", updateItemsPerPage)
+    }
+  }, [])
+
+  const totalPages = Math.ceil(schedules.length / itemsPerPage)
+
+  const handleNext = () => {
+    if (currentIndex < totalPages - 1) {
+      setCurrentIndex((prev) => prev + 1)
+    }
+  }
+
+  const handlePrev = () => {
+    if (currentIndex > 0) {
+      setCurrentIndex((prev) => prev - 1)
+    }
+  }
+
+  const visibleSchedules = schedules.slice(
+    currentIndex * itemsPerPage,
+    (currentIndex + 1) * itemsPerPage
+  )
 
   return (
     <div className="flex flex-col p-2">
@@ -27,16 +68,26 @@ export default function DailySchedule({
         </h3>
         <PlusIcon className="cursor-pointer" onClick={() => onAdd(day)} />
       </div>
-      <div className="flex w-full">
-        <div className="flex w-full gap-4">
-          {schedules.map((schedule: Schedule, index: number) => {
+      <div
+        className={cn(
+          schedules.length ? "relative flex" : "hidden",
+          "items-center w-full"
+        )}
+      >
+        <button
+          className="absolute left-0 bg-white dark:bg-neutral-800 p-2 rounded-full shadow-lg z-10"
+          onClick={handlePrev}
+          disabled={currentIndex === 0}
+        >
+          &#9664;
+        </button>
+
+        <div className="flex overflow-x-hidden gap-4 w-full px-8">
+          {visibleSchedules.map((schedule: Schedule, index: number) => {
             const startTime = new Date(schedule.startTime)
             const endTime = new Date(
               startTime.getTime() + schedule.duration * 60 * 1000
             )
-            // const startHour = startTime.getHours()
-            // const startMinute = startTime.getMinutes()
-            // const durationInMinutes = schedule.duration
 
             return (
               <div
@@ -64,6 +115,13 @@ export default function DailySchedule({
             )
           })}
         </div>
+        <button
+          className="absolute right-0 bg-white dark:bg-neutral-800 p-2 rounded-full shadow-lg z-10"
+          onClick={handleNext}
+          disabled={currentIndex === totalPages - 1}
+        >
+          &#9654;
+        </button>
       </div>
     </div>
   )
