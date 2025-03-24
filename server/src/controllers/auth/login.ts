@@ -2,17 +2,15 @@ import { Request, Response } from "express"
 import bcrypt from "bcryptjs"
 import jwt from "jsonwebtoken"
 
-const SERVER_PASSWORD = process.env.PASSWORD
-
 export async function loginUser(req: Request, res: Response) {
   const { password } = req.body
 
   try {
-    if (!SERVER_PASSWORD) {
-      throw new Error("SERVER_PASSWORD is not set in the environment")
+    if (!process.env.PASSWORD) {
+      throw new Error("PASSWORD is not set in the environment")
     }
 
-    const passwordMatch = await bcrypt.compare(password, SERVER_PASSWORD)
+    const passwordMatch = await bcrypt.compare(password, process.env.PASSWORD)
     if (!passwordMatch) {
       return res.status(401).json({ error: "Invalid credentials" })
     }

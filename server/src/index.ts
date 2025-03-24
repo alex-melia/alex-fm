@@ -1,4 +1,3 @@
-// @ts-nocheck
 import express from "express"
 import dotenv from "dotenv"
 import ffmpeg from "fluent-ffmpeg"
@@ -19,10 +18,6 @@ const io = new Server(server, {
   },
 })
 
-io.on("connection", (socket) => {
-  console.log("a user connected")
-})
-
 // Routes
 import { songRoutes } from "./routes/song"
 import { playlistRoutes } from "./routes/playlist"
@@ -33,14 +28,16 @@ import { authRoutes } from "./routes/auth"
 
 dotenv.config({ path: "./.env" })
 
-// const prisma = new PrismaClient()
-const ICECAST_URL = "icecast://source:alexfm@178.156.137.38:8443/stream"
-// const ICECAST_URL = "https://api.alexmelia.dev/stream"
+const ICECAST_URL =
+  process.env.NODE_ENV === "production"
+    ? "icecast://source:alexfm@178.156.137.38:8443/stream"
+    : "icecast://source:alexfm@localhost:8443/stream"
 
-ffmpeg.setFfmpegPath("/usr/bin/ffmpeg")
-// ffmpeg.setFfmpegPath(
-//   "C:\\ffmpeg-2024-12-04-git-2f95bc3cb3-full_build\\bin\\ffmpeg.exe"
-// )
+ffmpeg.setFfmpegPath(
+  process.env.NODE_ENV === "production"
+    ? "/usr/bin/ffmpeg"
+    : "C:\\ffmpeg-2024-12-04-git-2f95bc3cb3-full_build\\bin\\ffmpeg.exe"
+)
 
 let songQueue: {
   id: string
@@ -52,7 +49,7 @@ let songQueue: {
   album: string
   playlist: object
 }[] = []
-let currentMetadata = null
+let currentMetadata: any = null
 let audioStream: Readable | null = null
 let ffmpegProcess: ffmpeg.FfmpegCommand | null = null
 
@@ -80,12 +77,12 @@ function resetAudioStream() {
     })
     .on("error", (err) => {
       console.error("FFmpeg error:", err.message)
-      // setTimeout(resetAudioStream, 2000)
     })
     .on("end", () => {
       console.log("FFmpeg streaming ended.")
     })
-    .run()
+
+  ffmpegProcess.run()
 }
 
 async function streamSongs() {
@@ -129,20 +126,25 @@ async function streamSongs() {
           songId: song.id,
         },
       })
-    } catch (error) {
+    } catch (error: any) {
       console.error("Error writing to database:", error.message)
     }
   }
 }
 
-async function fetchWithRetry(url, options = {}, retries = 3, delay = 1000) {
+async function fetchWithRetry(
+  url: string,
+  options = {},
+  retries = 3,
+  delay = 1000
+) {
   for (let i = 0; i < retries; i++) {
     try {
       const response = await fetch(url, options)
       if (!response.ok)
         throw new Error(`HTTP error! status: ${response.status}`)
       return response
-    } catch (error) {
+    } catch (error: any) {
       console.error(`Fetch attempt ${i + 1} failed: ${error.message}`)
       if (i < retries - 1) {
         await new Promise((resolve) => setTimeout(resolve, delay * (i + 1)))
@@ -161,7 +163,7 @@ async function streamSongToAudioStream(songUrl: string) {
 
   return new Promise<void>((resolve, reject) => {
     fetchWithRetry(songUrl)
-      .then((res) => {
+      .then((res: any) => {
         if (!res.body) {
           reject(new Error("Failed to fetch song stream."))
           return
@@ -177,13 +179,13 @@ async function streamSongToAudioStream(songUrl: string) {
 
         res.body
           .pipe(realTimePacer)
-          .on("data", (chunk) => {
+          .on("data", (chunk: any) => {
             if (!audioStream?.push(chunk)) {
               console.log("chunk not pushed")
 
               res.body.pause()
               console.log("paused")
-              audioStream.once("drain", () => res.body.resume())
+              audioStream?.once("drain", () => res.body.resume())
               console.log("drained")
             }
             console.log(chunk)
@@ -192,7 +194,7 @@ async function streamSongToAudioStream(songUrl: string) {
             console.log("Finished streaming song.")
             resolve()
           })
-          .on("error", (err) => {
+          .on("error", (err: any) => {
             console.error("Error while streaming song:", err.message)
             reject(err)
           })
@@ -231,7 +233,7 @@ async function fetchSongs(playlistId: string) {
   }))
 }
 
-async function initializeTodaySchedule() {
+async function initializeSchedule() {
   const today = new Date()
   today.setUTCHours(0, 0, 0, 0)
 
@@ -248,8 +250,6 @@ async function initializeTodaySchedule() {
     include: { playlist: { include: { songs: true } } },
   })
 
-  console.log(schedules.length)
-
   schedules.forEach((scheduleItem) => {
     const startTime = new Date(scheduleItem.startTime)
 
@@ -257,9 +257,15 @@ async function initializeTodaySchedule() {
       console.log(`Starting playlist: ${scheduleItem.playlist.name}`)
       try {
         const songs = await fetchSongs(scheduleItem.playlist.id)
-        songQueue.push(...songs)
+
+        const processedSongs = songs.map((song) => ({
+          ...song,
+          image: song.image || "",
+          album: song.album || "",
+        }))
+        songQueue.push(...processedSongs)
         resetAudioStream()
-      } catch (error) {
+      } catch (error: any) {
         console.error("Error initializing playlist:", error.message)
       }
     })
@@ -267,27 +273,26 @@ async function initializeTodaySchedule() {
 }
 
 ;(async () => {
-  await initializeTodaySchedule()
+  await initializeSchedule()
 
-  // Schedule daily initialization at midnight
   schedule.scheduleJob("0 0 * * *", async () => {
-    console.log("Initializing schedule for the new day...")
-    await initializeTodaySchedule()
+    console.log("Initializing schedule...")
+    await initializeSchedule()
   })
 
   streamSongs()
 })()
 
 io.on("connection", (socket) => {
-  console.log("A user connected")
-  console.log(currentMetadata)
-
   socket.emit("metadataUpdate", currentMetadata)
 })
 
 app.use(
   cors({
-    origin: "*",
+    origin:
+      process.env.NODE_ENV === "production"
+        ? "https://radio.alexmelia.dev"
+        : "*",
   })
 )
 app.use(express.json())
@@ -300,7 +305,5 @@ app.use("/api/auth", authRoutes)
 app.use("/api", testRoutes)
 
 server.listen(8001, () => {
-  console.log(process.env.PASSWORD)
-
   console.log("Listening on port 8001")
 })

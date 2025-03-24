@@ -13,9 +13,8 @@ export function formatDate(date: Date) {
     hour: "2-digit",
     minute: "2-digit",
     second: "2-digit",
-  }) // e.g., "17:00:00"
+  })
 
-  // Determine suffix for the day
   const suffix =
     dayOfMonth % 10 === 1 && dayOfMonth !== 11
       ? "st"
