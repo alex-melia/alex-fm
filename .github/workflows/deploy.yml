@@ -10,45 +10,41 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout code
+      - name: Checkout repository
         uses: actions/checkout@v3
 
       - name: Set up Node.js
         uses: actions/setup-node@v3
         with:
-          node-version: "20"
+          node-version: 20
 
       - name: Install SSH key
         uses: shimataro/ssh-key-action@v2.4.0
         with:
           key: ${{ secrets.SSH_PRIVATE_KEY }}
-          known_hosts: |
-            178.156.137.38 ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABgQDIdfNG0kIVksQ0FoAxgV/miNwwvFIoNn5uLkDJKQoT2fIgH/LAjaqudjzXxms17P72lYMANPrzqPWfKBvltaE0oveB+4zReJRw6ygCH6c7TM3kscfQkQfzD0pTGwjGrhSAyhnreZwrvJsavwAhkRxA9VpraIed/JibTa28My1OoHLwgVWaRl+woBvRv5oBD4MJlZ9L+QF2syt+YbbQPsZa0ogc6zAWcxIOaxnfF9LdIguKiMdZkIloGYlgUy8/IIrN99sWRPg1tKhwtpwT6KJEqry5psOlmwCT0lv6Yg7c6Leb6/K/h24dRoszp5nmEpxgiaIG9i2ZLCRqyya4Rz3T1HGN/QdDgRzYuMVS13EkqO+BrBIaH5LxtfMb5shnyxqKfhf49hPjTpjxxk4LRlGFRidmTMmq4T7ICDhldYKP62B47glVz8gx8tu8GGCsRsLQhMAOtj6ZjN5ll6IwHLpCWqcIhc2gKm5guDRb2HMhUMjqRRTIjaXB6DnFPzhcLxE=
-            178.156.137.38 ecdsa-sha2-nistp256 AAAAE2VjZHNhLXNoYTItbmlzdHAyNTYAAAAIbmlzdHAyNTYAAABBBB6n4O04/y0Ls08tsGj5pzEmyA8RVazn3IcL/+8WU2rT+3YDroTqRpdJqGVc7vKHoDNoyrYjr8j3Ja5LU6lgXyw=
-            178.156.137.38 ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIHbTI/lAXGPxKm/n/eQ/2QuLasNITbacKAwke37ZG/ix
+          known_hosts: ${{ secrets.SSH_KNOWN_HOSTS }}
 
       - name: Install dependencies
         run: npm install
         working-directory: ./server
 
-      - name: Build the project
+      - name: Build project
         run: npm run build
         working-directory: ./server
 
-      - name: Copy files to server
+      - name: Upload build to server
         run: |
-          rsync -avz ./server/ root@178.156.137.38:/root/radio/server
+          rsync -az --delete ./server/ root@${{ secrets.SERVER_IP }}:/var/www/radio/server
 
-      - name: Deploy with PM2
+      - name: Restart PM2 on server
         run: |
-          ssh root@178.156.137.38 "
-            cd /root/radio/server && \
+          ssh root@${{ secrets.SERVER_IP }} "
+            cd /var/www/radio/server && \
             export NODE_ENV=production && \
-            export DATABASE_URL=${{ secrets.DATABASE_URL }} && \
-            export DIRECT_URL=${{ secrets.DIRECT_URL }} && \
-            export PASSWORD=${{ secrets.PASSWORD }} && \
-            export ACCESS_TOKEN_SECRET=${{ secrets.ACCESS_TOKEN_SECRET }} && \
-            pm2 delete server || true && \
-            pm2 start npm --name server -- run start --update-env && \
-            pm2 status
+            export DATABASE_URL='${{ secrets.DATABASE_URL }}' && \
+            export DIRECT_URL='${{ secrets.DIRECT_URL }}' && \
+            export PASSWORD='${{ secrets.PASSWORD }}' && \
+            export ACCESS_TOKEN_SECRET='${{ secrets.ACCESS_TOKEN_SECRET }}' && \
+            pm2 delete radio-server || true && \
+            pm2 start npm --name radio-server -- run start --update-env
           "
