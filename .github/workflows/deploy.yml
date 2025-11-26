@@ -10,43 +10,50 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout repository
+      - name: Checkout code
         uses: actions/checkout@v3
 
       - name: Set up Node.js
         uses: actions/setup-node@v3
         with:
-          node-version: 20
+          node-version: "20"
 
       - name: Install SSH key
         uses: shimataro/ssh-key-action@v2.4.0
         with:
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           known_hosts: ${{ secrets.SSH_KNOWN_HOSTS }}
+          name: id_rsa
+          if_key_exists: replace
 
       - name: Install dependencies
         run: npm install
         working-directory: ./server
 
-      - name: Build project
+      - name: Build the project
         run: npm run build
         working-directory: ./server
 
-      - name: Upload build to server
+      - name: Copy files to server (as deploy)
         run: |
-          rsync -az --delete ./server/ root@${{ secrets.SERVER_IP }}:/var/www/radio/server
+          rsync -az --delete \
+            ./server/ deploy@${{ secrets.SERVER_IP }}:/home/deploy/radio/server
 
-      - name: Restart PM2 on server
+      - name: Deploy with PM2 (as deploy)
         run: |
-          ssh root@${{ secrets.SERVER_IP }} "
-            cd /var/www/radio/server && \
-            export NODE_ENV=production && \
-            export DATABASE_URL='${{ secrets.DATABASE_URL }}' && \
-            export DIRECT_URL='${{ secrets.DIRECT_URL }}' && \
-            export PASSWORD='${{ secrets.PASSWORD }}' && \
-            export ACCESS_TOKEN_SECRET='${{ secrets.ACCESS_TOKEN_SECRET }}' && \
-            pm2 delete radio-server || true && \
+          ssh deploy@${{ secrets.SERVER_IP }} << 'EOF'
+            set -e
+            cd /home/deploy/radio/server
+
+            # Export env vars for this process (optional: move to ecosystem/config later)
+            export NODE_ENV=production
+            export DATABASE_URL='${{ secrets.DATABASE_URL }}'
+            export DIRECT_URL='${{ secrets.DIRECT_URL }}'
+            export PASSWORD='${{ secrets.PASSWORD }}'
+            export ACCESS_TOKEN_SECRET='${{ secrets.ACCESS_TOKEN_SECRET }}'
+
+            pm2 delete radio-server || true
             pm2 start npm --name radio-server -- run start --update-env
-          "
-
-#
+            pm2 save
+            pm2 status
+          EOF
