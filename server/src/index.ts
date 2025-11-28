@@ -91,7 +91,7 @@ async function streamSongs() {
   while (true) {
     if (songQueue.length === 0) {
       console.log("No songs in the queue. Icecast will serve silence.mp3...")
-      await new Promise((resolve) => setTimeout(resolve, 10000)) // Wait and check again
+      await new Promise((resolve) => setTimeout(resolve, 10000))
       continue
     }
 
