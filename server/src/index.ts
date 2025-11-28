@@ -30,7 +30,7 @@ dotenv.config({ path: "./.env" })
 
 const ICECAST_URL =
   process.env.NODE_ENV === "production"
-    ? "icecast://source:alexfm@178.156.137.38:8443/stream"
+    ? "icecast://source:alexfm@localhost:8443/stream"
     : "icecast://source:alexfm@localhost:8443/stream"
 
 ffmpeg.setFfmpegPath(
