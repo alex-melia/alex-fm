@@ -243,12 +243,15 @@ async function initializeSchedule() {
   const schedules = await prisma.schedule.findMany({
     where: {
       startTime: {
-        gte: today,
-        lt: tomorrow,
+        gte: today.toISOString(),
+        lt: tomorrow.toISOString(),
       },
     },
     include: { playlist: { include: { songs: true } } },
   })
+
+  console.log(today)
+  console.log(tomorrow)
 
   console.log(schedules)
 
